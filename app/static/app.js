@@ -29,21 +29,31 @@ function companyHeaders() {
 }
 
 async function api(path, options = {}) {
-  const { headers: extraHeaders, ...rest } = options;
+  const { headers: extraHeaders, body, ...rest } = options;
+  const headers = { ...(extraHeaders || {}) };
+
+  if (body !== undefined) {
+    headers["Content-Type"] = "application/json";
+  }
+
   const response = await fetch(path, {
     ...rest,
-    headers: {
-      "Content-Type": "application/json",
-      ...(extraHeaders || {}),
-    },
+    body,
+    headers,
   });
 
   if (!response.ok) {
     let detail = `Request failed (${response.status})`;
     try {
-      const body = await response.json();
-      if (body.detail) {
-        detail = typeof body.detail === "string" ? body.detail : JSON.stringify(body.detail);
+      const payload = await response.json();
+      if (payload.detail) {
+        if (typeof payload.detail === "string") {
+          detail = payload.detail;
+        } else if (Array.isArray(payload.detail)) {
+          detail = payload.detail.map((item) => item.msg).join("; ");
+        } else {
+          detail = JSON.stringify(payload.detail);
+        }
       }
     } catch (_) {
       /* ignore */
