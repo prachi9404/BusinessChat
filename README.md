@@ -37,7 +37,7 @@ Expected health response when all services are up:
   "app": "BusinessChat",
   "environment": "development",
   "services": {
-    "postgres": { "status": "ok", "counts": { "companies": 2, "users": 6, "messages": 0 } },
+    "postgres": { "status": "ok", "counts": { "companies": 2, "users": 6, "messages": 12 } },
     "redis": { "status": "ok" }
   }
 }
@@ -100,13 +100,58 @@ BusinessChat/
 └── requirements.txt
 ```
 
+## Phase 3 — Message ingestion API
+
+Team members post daily updates; owners list them scoped to their company.
+
+### Headers
+
+| Header | Required on | Purpose |
+|--------|-------------|---------|
+| `X-Company-Slug` | All `/messages` routes | Tenant isolation |
+| `X-User-Id` | `POST /messages` only | Identifies the author (must belong to company) |
+
+Get user IDs from `GET /companies/me`.
+
+### Examples
+
+```bash
+# List messages for Apex (newest first)
+curl -H "X-Company-Slug: apex-manufacturing" http://localhost:8001/messages
+
+# Post a new update
+curl -X POST http://localhost:8001/messages \
+  -H "X-Company-Slug: apex-manufacturing" \
+  -H "X-User-Id: <user-uuid-from-companies/me>" \
+  -H "Content-Type: application/json" \
+  -d "{\"content\": \"Line 3 maintenance complete.\"}"
+
+# Filter by author or date range
+curl -H "X-Company-Slug: horizon-trading" \
+  "http://localhost:8001/messages?limit=10&from_date=2026-06-01T00:00:00Z"
+```
+
+### Sample seed data
+
+12 messages are seeded (6 per company) with industry-specific vocabulary — factory lines and QC for Apex; deals and payments for Horizon.
+
+### Branch strategy
+
+Each phase is developed on its own branch:
+
+| Branch | Phase |
+|--------|-------|
+| `phase-1-scaffold` | Docker + FastAPI skeleton |
+| `phase-2-multi-tenant-schema` | DB schema + tenant scoping |
+| `phase-3-message-ingestion` | Message POST/GET API |
+
 ### Development phases
 
-| Phase | Status | Description |
-|-------|--------|-------------|
-| 1 | ✅ | Scaffold, Docker, health checks |
-| 2 | ✅ | Multi-tenant data model |
-| 3 | — | Message ingestion API |
+| Phase | Status | Branch | Description |
+|-------|--------|--------|-------------|
+| 1 | ✅ | `phase-1-scaffold` | Scaffold, Docker, health checks |
+| 2 | ✅ | `phase-2-multi-tenant-schema` | Multi-tenant data model |
+| 3 | ✅ | `phase-3-message-ingestion` | Message ingestion API |
 | 4 | — | Embeddings & retrieval |
 | 5 | — | Owner Q&A (RAG + citations) |
 | 6 | — | Simple web UI |
