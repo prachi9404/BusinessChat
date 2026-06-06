@@ -29,12 +29,13 @@ function companyHeaders() {
 }
 
 async function api(path, options = {}) {
+  const { headers: extraHeaders, ...rest } = options;
   const response = await fetch(path, {
+    ...rest,
     headers: {
       "Content-Type": "application/json",
-      ...(options.headers || {}),
+      ...(extraHeaders || {}),
     },
-    ...options,
   });
 
   if (!response.ok) {
