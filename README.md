@@ -192,6 +192,48 @@ Each phase is developed on its own branch:
 | `phase-2-multi-tenant-schema` | DB schema + tenant scoping |
 | `phase-3-message-ingestion` | Message POST/GET API |
 | `phase-4-embeddings-retrieval` | pgvector + semantic search |
+| `phase-5-owner-qa` | RAG Q&A with citations + audit log |
+
+## Phase 5 — Owner Q&A (RAG + citations)
+
+The owner asks natural-language questions. The system retrieves relevant team updates, generates an answer with GPT, and returns **cited sources**.
+
+### Ask endpoint
+
+```bash
+curl -X POST http://localhost:8001/ask \
+  -H "X-Company-Slug: apex-manufacturing" \
+  -H "Content-Type: application/json" \
+  -d "{\"question\": \"how was line 2 this week?\", \"limit\": 8}"
+```
+
+Response includes:
+- `answer` — LLM synthesis grounded in team updates
+- `sources` — message IDs + content used as evidence
+- `qa_log_id` — audit record for debugging
+
+### Debug a past answer
+
+```bash
+curl -H "X-Company-Slug: apex-manufacturing" \
+  http://localhost:8001/qa/<qa_log_id>
+```
+
+Returns the stored question, answer, retrieval snapshot, and source message IDs — use this when "yesterday's answer was wrong."
+
+### RAG flow
+
+```
+Owner question + X-Company-Slug
+        ↓
+Retrieve top-k messages (pgvector, tenant-scoped)
+        ↓
+Build prompt with sources only
+        ↓
+GPT answer (temperature 0.2)
+        ↓
+Save qa_logs row + return answer + citations
+```
 
 ### Development phases
 
@@ -201,6 +243,6 @@ Each phase is developed on its own branch:
 | 2 | ✅ | `phase-2-multi-tenant-schema` | Multi-tenant data model |
 | 3 | ✅ | `phase-3-message-ingestion` | Message ingestion API |
 | 4 | ✅ | `phase-4-embeddings-retrieval` | Embeddings & retrieval |
-| 5 | — | Owner Q&A (RAG + citations) |
+| 5 | ✅ | `phase-5-owner-qa` | Owner Q&A (RAG + citations) |
 | 6 | — | Simple web UI |
 | 7 | — | Audit trail & debug tooling |

@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 
+from app.api.ask import router as ask_router
 from app.api.companies import router as companies_router
 from app.api.health import router as health_router
 from app.api.messages import router as messages_router
@@ -18,6 +19,7 @@ app.include_router(health_router)
 app.include_router(companies_router)
 app.include_router(messages_router)
 app.include_router(search_router)
+app.include_router(ask_router)
 
 
 @app.get("/")
@@ -26,4 +28,5 @@ async def root() -> dict:
         "message": "BusinessChat API",
         "docs": "/docs",
         "health": "/health",
+        "ask": "/ask",
     }

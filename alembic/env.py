@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from app.config import get_settings
 from app.db.base import Base
-from app.models import Company, Message, User  # noqa: F401 — register models
+from app.models import Company, Message, QALog, User  # noqa: F401 — register models
 
 config = context.config
 if config.config_file_name is not None:

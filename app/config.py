@@ -30,6 +30,7 @@ class Settings(BaseSettings):
     openai_api_key: str = ""
     embedding_model: str = "text-embedding-3-small"
     embedding_dimensions: int = 1536
+    chat_model: str = "gpt-4o-mini"
 
     @property
     def database_url(self) -> str:
