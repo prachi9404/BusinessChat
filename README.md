@@ -37,7 +37,7 @@ Expected health response when all services are up:
   "app": "BusinessChat",
   "environment": "development",
   "services": {
-    "postgres": { "status": "ok" },
+    "postgres": { "status": "ok", "counts": { "companies": 2, "users": 6, "messages": 0 } },
     "redis": { "status": "ok" }
   }
 }
@@ -51,18 +51,53 @@ Expected health response when all services are up:
 | http://localhost:8001/docs | Swagger UI |
 | http://localhost:8001/health | Health check (Postgres + Redis) |
 
+## Phase 2 — Multi-tenant data model
+
+On startup the API automatically runs migrations and seeds two demo companies:
+
+| Slug | Company | Industry |
+|------|---------|----------|
+| `apex-manufacturing` | Apex Manufacturing | Factory lines, downtime, shipments |
+| `horizon-trading` | Horizon Trading Co. | Deals, payments, commodities |
+
+Each company has an **owner** and two **members**.
+
+### Tenant scoping
+
+Tenant-scoped endpoints require the `X-Company-Slug` header:
+
+```bash
+# List all companies (no tenant header)
+curl http://localhost:8001/companies
+
+# Get current company + team (tenant header required)
+curl -H "X-Company-Slug: apex-manufacturing" http://localhost:8001/companies/me
+```
+
+### Schema
+
+```
+companies ──┬── users
+            └── messages (company_id on every row)
+```
+
+Every tenant-owned table includes `company_id` so queries never mix data across companies.
+
 ### Project structure
 
 ```
 BusinessChat/
+├── alembic/               # Database migrations
 ├── app/
-│   ├── api/health.py    # Health check endpoint
-│   ├── config.py        # Settings from environment
-│   └── main.py          # FastAPI entry point
-├── docker-compose.yml   # Postgres + Redis + API
+│   ├── api/               # Route handlers
+│   ├── db/                # Session, seed script
+│   ├── dependencies/      # Tenant resolution (X-Company-Slug)
+│   ├── models/            # SQLAlchemy models
+│   └── schemas/           # Pydantic response models
+├── scripts/entrypoint.sh  # migrate → seed → start
+├── docker-compose.yml
 ├── Dockerfile
-├── requirements.txt
-└── .env.example
+└── requirements.txt
 ```
 
 ### Development phases
@@ -70,7 +105,7 @@ BusinessChat/
 | Phase | Status | Description |
 |-------|--------|-------------|
 | 1 | ✅ | Scaffold, Docker, health checks |
-| 2 | — | Multi-tenant data model |
+| 2 | ✅ | Multi-tenant data model |
 | 3 | — | Message ingestion API |
 | 4 | — | Embeddings & retrieval |
 | 5 | — | Owner Q&A (RAG + citations) |

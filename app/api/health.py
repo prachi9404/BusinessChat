@@ -1,23 +1,32 @@
 from fastapi import APIRouter
 from redis.asyncio import Redis
-from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy import func, select, text
 
 from app.config import get_settings
+from app.db.session import SessionLocal
+from app.models.company import Company
+from app.models.message import Message
+from app.models.user import User
 
 router = APIRouter(tags=["health"])
-
 settings = get_settings()
-engine = create_async_engine(settings.database_url, pool_pre_ping=True)
-SessionLocal = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 
 async def _check_postgres() -> dict:
     try:
         async with SessionLocal() as session:
-            result = await session.execute(text("SELECT 1"))
-            result.scalar_one()
-        return {"status": "ok"}
+            await session.execute(text("SELECT 1"))
+            companies = await session.scalar(select(func.count()).select_from(Company))
+            users = await session.scalar(select(func.count()).select_from(User))
+            messages = await session.scalar(select(func.count()).select_from(Message))
+        return {
+            "status": "ok",
+            "counts": {
+                "companies": companies,
+                "users": users,
+                "messages": messages,
+            },
+        }
     except Exception as exc:
         return {"status": "error", "detail": str(exc)}
 
