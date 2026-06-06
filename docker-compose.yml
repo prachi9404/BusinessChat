@@ -1,0 +1,56 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: businesschat-postgres
+    environment:
+      POSTGRES_USER: businesschat
+      POSTGRES_PASSWORD: businesschat
+      POSTGRES_DB: businesschat
+    # No host port — API reaches postgres via Docker network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U businesschat -d businesschat"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: businesschat-redis
+    # No host port — API reaches redis via Docker network
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: .
+    container_name: businesschat-api
+    ports:
+      - "8001:8000"
+    environment:
+      APP_NAME: BusinessChat
+      APP_ENV: development
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: businesschat
+      POSTGRES_PASSWORD: businesschat
+      POSTGRES_DB: businesschat
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+    volumes:
+      - ./app:/app/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  redis_data:
