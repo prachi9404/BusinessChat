@@ -125,10 +125,7 @@ button:disabled {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.25rem;
-}
-
-.panel-full {
-  grid-column: 1 / -1;
+  align-items: start;
 }
 
 .panel {
@@ -137,7 +134,6 @@ button:disabled {
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: 1.25rem;
-  min-height: 520px;
 }
 
 .panel-accent {
@@ -166,6 +162,27 @@ button:disabled {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  max-height: 480px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.history-section {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.history-section h3,
+.history-section h4 {
+  margin: 0 0 0.35rem;
+  font-size: 0.95rem;
+}
+
+.history-hint {
+  margin: 0 0 0.75rem;
+  color: var(--muted);
+  font-size: 0.85rem;
 }
 
 .message-card,
@@ -305,9 +322,5 @@ button:disabled {
 @media (max-width: 900px) {
   .layout {
     grid-template-columns: 1fr;
-  }
-
-  .panel-full {
-    grid-column: auto;
   }
 }

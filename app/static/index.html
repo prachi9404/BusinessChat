@@ -72,24 +72,22 @@
         <h3>Sources</h3>
         <div id="sources-list"></div>
       </div>
-    </section>
 
-    <section class="panel panel-full">
-      <div class="panel-header">
-        <h2>Q&amp;A history &amp; debug</h2>
-        <p>Inspect past answers when something looks wrong</p>
-      </div>
-      <div id="qa-history-list" class="history-list"></div>
-      <div id="qa-debug-box" class="debug-box hidden">
-        <h3>Debug trace</h3>
-        <p id="qa-debug-question" class="debug-question"></p>
-        <pre id="qa-debug-prompt" class="debug-pre"></pre>
-        <div id="qa-debug-retrieval"></div>
+      <div class="history-section">
+        <h3>Q&amp;A history &amp; debug</h3>
+        <p class="history-hint">Click a past question to inspect the debug trace</p>
+        <div id="qa-history-list" class="history-list"></div>
+        <div id="qa-debug-box" class="debug-box hidden">
+          <h4>Debug trace</h4>
+          <p id="qa-debug-question" class="debug-question"></p>
+          <pre id="qa-debug-prompt" class="debug-pre"></pre>
+          <div id="qa-debug-retrieval"></div>
+        </div>
       </div>
     </section>
   </main>
 
   <div id="toast" class="toast hidden"></div>
-  <script src="/static/app.js?v=3"></script>
+  <script src="/static/app.js?v=4"></script>
 </body>
 </html>
