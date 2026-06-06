@@ -135,6 +135,53 @@ curl -H "X-Company-Slug: horizon-trading" \
 
 12 messages are seeded (6 per company) with industry-specific vocabulary — factory lines and QC for Apex; deals and payments for Horizon.
 
+## Phase 4 — Embeddings & semantic retrieval
+
+Messages are converted to vectors (OpenAI embeddings) and stored in PostgreSQL (pgvector). Search always filters by `company_id` **before** ranking by similarity.
+
+### Setup
+
+```bash
+cp .env.example .env
+# Add your OpenAI key to .env:
+# OPENAI_API_KEY=sk-...
+docker compose up --build -d
+```
+
+On startup, any messages missing embeddings are backfilled automatically.
+
+### Search endpoint
+
+```bash
+# Apex: factory-related query
+curl -X POST http://localhost:8001/search \
+  -H "X-Company-Slug: apex-manufacturing" \
+  -H "Content-Type: application/json" \
+  -d "{\"query\": \"how was line 2 this week?\", \"limit\": 3}"
+
+# Horizon: same words, different company — different results
+curl -X POST http://localhost:8001/search \
+  -H "X-Company-Slug: horizon-trading" \
+  -H "Content-Type: application/json" \
+  -d "{\"query\": \"any issues with Rajan?\", \"limit\": 3}"
+```
+
+Response includes `similarity` (0–1) and matching messages as sources for Phase 5 Q&A.
+
+### Tenant isolation in search
+
+```
+Query + X-Company-Slug
+        ↓
+Embed query (OpenAI)
+        ↓
+SQL: WHERE company_id = ? AND embedding IS NOT NULL
+        ↓
+ORDER BY cosine distance (top-k within company only)
+```
+
+Company B messages never enter Company A's search — even if text is similar.
+
 ### Branch strategy
 
 Each phase is developed on its own branch:
@@ -144,6 +191,7 @@ Each phase is developed on its own branch:
 | `phase-1-scaffold` | Docker + FastAPI skeleton |
 | `phase-2-multi-tenant-schema` | DB schema + tenant scoping |
 | `phase-3-message-ingestion` | Message POST/GET API |
+| `phase-4-embeddings-retrieval` | pgvector + semantic search |
 
 ### Development phases
 
@@ -152,7 +200,7 @@ Each phase is developed on its own branch:
 | 1 | ✅ | `phase-1-scaffold` | Scaffold, Docker, health checks |
 | 2 | ✅ | `phase-2-multi-tenant-schema` | Multi-tenant data model |
 | 3 | ✅ | `phase-3-message-ingestion` | Message ingestion API |
-| 4 | — | Embeddings & retrieval |
+| 4 | ✅ | `phase-4-embeddings-retrieval` | Embeddings & retrieval |
 | 5 | — | Owner Q&A (RAG + citations) |
 | 6 | — | Simple web UI |
 | 7 | — | Audit trail & debug tooling |

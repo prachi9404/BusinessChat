@@ -19,12 +19,16 @@ async def _check_postgres() -> dict:
             companies = await session.scalar(select(func.count()).select_from(Company))
             users = await session.scalar(select(func.count()).select_from(User))
             messages = await session.scalar(select(func.count()).select_from(Message))
+            embedded = await session.scalar(
+                select(func.count()).select_from(Message).where(Message.embedding.is_not(None))
+            )
         return {
             "status": "ok",
             "counts": {
                 "companies": companies,
                 "users": users,
                 "messages": messages,
+                "messages_embedded": embedded,
             },
         }
     except Exception as exc:

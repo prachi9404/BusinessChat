@@ -13,6 +13,7 @@ from app.models.company import Company
 from app.models.message import Message
 from app.models.user import User
 from app.schemas.message import MessageCreate, MessageRead
+from app.services.embeddings import embed_text
 
 router = APIRouter(prefix="/messages", tags=["messages"])
 
@@ -35,10 +36,12 @@ async def create_message(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> MessageRead:
+    content = payload.content.strip()
     message = Message(
         company_id=company.id,
         user_id=user.id,
-        content=payload.content.strip(),
+        content=content,
+        embedding=await embed_text(content),
     )
     db.add(message)
     await db.commit()
