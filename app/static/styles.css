@@ -127,6 +127,10 @@ button:disabled {
   gap: 1.25rem;
 }
 
+.panel-full {
+  grid-column: 1 / -1;
+}
+
 .panel {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -243,8 +247,67 @@ button:disabled {
   background: var(--danger);
 }
 
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.history-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  background: #fbfcfd;
+  cursor: pointer;
+}
+
+.history-card:hover {
+  border-color: var(--primary);
+}
+
+.history-card.active {
+  border-color: var(--primary);
+  background: var(--accent);
+}
+
+.history-card h4 {
+  margin: 0 0 0.35rem;
+  font-size: 0.95rem;
+}
+
+.history-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.debug-box {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.debug-question {
+  font-weight: 600;
+}
+
+.debug-pre {
+  background: #0f1720;
+  color: #e8eef5;
+  padding: 1rem;
+  border-radius: 10px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
 @media (max-width: 900px) {
   .layout {
     grid-template-columns: 1fr;
+  }
+
+  .panel-full {
+    grid-column: auto;
   }
 }

@@ -271,4 +271,24 @@ Save qa_logs row + return answer + citations
 | 4 | ✅ | `phase-4-embeddings-retrieval` | Embeddings & retrieval |
 | 5 | ✅ | `phase-5-owner-qa` | Owner Q&A (RAG + citations) |
 | 6 | ✅ | `phase-6-web-ui` | Simple web UI |
-| 7 | — | `phase-7-observability` | Audit trail & debug tooling |
+| 7 | ✅ | `phase-7-observability` | Q&A history, debug trace, submission notes |
+
+## Phase 7 — Observability & trust
+
+Every `/ask` call is auditable. When an answer looks wrong, inspect what was retrieved and what prompt the LLM saw.
+
+### API
+
+| Endpoint | Purpose |
+|----------|---------|
+| `GET /qa` | List past Q&A for the current company |
+| `GET /qa/{id}` | Full audit record |
+| `GET /qa/{id}/debug` | Adds `system_prompt`, `prompt_context`, retrieval snapshot |
+
+### Web UI
+
+Scroll to **Q&A history & debug** at http://localhost:8001/app — click any past question to view the debug trace.
+
+### Submission reflections
+
+See [SUBMISSION_NOTES.md](SUBMISSION_NOTES.md) for stack translation, LLM learnings, tenancy, and trust/debugging notes for the walkthrough call.

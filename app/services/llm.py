@@ -17,7 +17,7 @@ Rules:
 - Do not mention other companies or generic advice."""
 
 
-def _format_context(company: Company, messages: list[tuple[Message, float]]) -> str:
+def format_context(company: Company, messages: list[tuple[Message, float]]) -> str:
     lines = [f"Company: {company.name} ({company.industry})"]
     lines.append("Team updates (most relevant first):")
 
@@ -40,18 +40,16 @@ async def generate_answer(
     messages: list[tuple[Message, float]],
 ) -> str:
     client = AsyncOpenAI(api_key=_require_api_key())
-    context = _format_context(company, messages)
+    context = format_context(company, messages)
+    user_prompt = f"{context}\n\nOwner question: {question}"
 
     response = await client.chat.completions.create(
         model=settings.chat_model,
         temperature=0.2,
         messages=[
             {"role": "system", "content": SYSTEM_PROMPT},
-            {
-                "role": "user",
-                "content": f"{context}\n\nOwner question: {question}",
-            },
+            {"role": "user", "content": user_prompt},
         ],
     )
 
-    return response.choices[0].message.content or ""
+    return response.choices[0].message.content or "", user_prompt

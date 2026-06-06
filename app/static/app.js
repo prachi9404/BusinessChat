@@ -12,6 +12,11 @@ const answerModel = document.getElementById("answer-model");
 const answerLogId = document.getElementById("answer-log-id");
 const sourcesBox = document.getElementById("sources-box");
 const sourcesList = document.getElementById("sources-list");
+const qaHistoryList = document.getElementById("qa-history-list");
+const qaDebugBox = document.getElementById("qa-debug-box");
+const qaDebugQuestion = document.getElementById("qa-debug-question");
+const qaDebugPrompt = document.getElementById("qa-debug-prompt");
+const qaDebugRetrieval = document.getElementById("qa-debug-retrieval");
 const toast = document.getElementById("toast");
 
 let companies = [];
@@ -128,10 +133,63 @@ function clearAnswer() {
   sourcesList.innerHTML = "";
 }
 
+async function loadQaHistory() {
+  const history = await api("/qa?limit=15", { headers: companyHeaders() });
+
+  if (!history.length) {
+    qaHistoryList.innerHTML = '<p class="empty-state">No questions asked yet for this company.</p>';
+    qaDebugBox.classList.add("hidden");
+    return;
+  }
+
+  qaHistoryList.innerHTML = history
+    .map(
+      (entry) => `
+        <article class="history-card" data-qa-id="${entry.id}">
+          <h4>${escapeHtml(entry.question)}</h4>
+          <p>${escapeHtml(entry.answer_preview)}</p>
+          <footer class="meta">${formatDate(entry.created_at)} · ${entry.source_count} sources · ${entry.model_used}</footer>
+        </article>
+      `
+    )
+    .join("");
+
+  qaHistoryList.querySelectorAll(".history-card").forEach((card) => {
+    card.addEventListener("click", () => {
+      qaHistoryList.querySelectorAll(".history-card").forEach((item) => item.classList.remove("active"));
+      card.classList.add("active");
+      loadQaDebug(card.dataset.qaId).catch((error) => showToast(error.message, true));
+    });
+  });
+}
+
+async function loadQaDebug(qaLogId) {
+  const debug = await api(`/qa/${qaLogId}/debug`, { headers: companyHeaders() });
+
+  qaDebugQuestion.textContent = `Question: ${debug.question}`;
+  qaDebugPrompt.textContent = debug.prompt_context || "(Prompt context not stored for this older entry)";
+  qaDebugRetrieval.innerHTML = (debug.retrieval_snapshot || [])
+    .map(
+      (item) => `
+        <article class="source-card">
+          <header>
+            <strong>${escapeHtml(item.author_name)}</strong>
+            <span class="similarity">${Math.round((item.similarity || 0) * 100)}% match</span>
+          </header>
+          <p>${escapeHtml(item.content)}</p>
+        </article>
+      `
+    )
+    .join("");
+  qaDebugBox.classList.remove("hidden");
+}
+
 async function refreshAll() {
   clearAnswer();
+  qaDebugBox.classList.add("hidden");
   await loadCompanyContext();
   await loadMessages();
+  await loadQaHistory();
 }
 
 companySelect.addEventListener("change", () => {
@@ -201,6 +259,8 @@ askForm.addEventListener("submit", async (event) => {
     } else {
       sourcesBox.classList.add("hidden");
     }
+
+    await loadQaHistory();
   } catch (error) {
     showToast(error.message, true);
   } finally {
