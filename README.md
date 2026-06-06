@@ -47,6 +47,7 @@ Expected health response when all services are up:
 
 | URL | Description |
 |-----|-------------|
+| http://localhost:8001/app | Web UI (team updates + owner Q&A) |
 | http://localhost:8001 | API root |
 | http://localhost:8001/docs | Swagger UI |
 | http://localhost:8001/health | Health check (Postgres + Redis) |
@@ -193,6 +194,31 @@ Each phase is developed on its own branch:
 | `phase-3-message-ingestion` | Message POST/GET API |
 | `phase-4-embeddings-retrieval` | pgvector + semantic search |
 | `phase-5-owner-qa` | RAG Q&A with citations + audit log |
+| `phase-6-web-ui` | Browser UI for updates + Q&A |
+
+## Phase 6 — Web UI
+
+A simple browser interface for demoing the full flow without Swagger.
+
+### Open the UI
+
+**http://localhost:8001/app**
+
+### Features
+
+| Panel | What you can do |
+|-------|-----------------|
+| **Team updates** | Switch company, pick a user, post messages, view feed |
+| **Owner Q&A** | Ask questions, see AI answer + cited sources |
+
+Use the company dropdown to switch between Apex Manufacturing and Horizon Trading.
+
+### Development phases (updated)
+
+| Phase | Status | Branch | Description |
+|-------|--------|--------|-------------|
+| 5 | ✅ | `phase-5-owner-qa` | Owner Q&A (RAG + citations) |
+| 6 | ✅ | `phase-6-web-ui` | Simple web UI |
 
 ## Phase 5 — Owner Q&A (RAG + citations)
 
@@ -244,5 +270,5 @@ Save qa_logs row + return answer + citations
 | 3 | ✅ | `phase-3-message-ingestion` | Message ingestion API |
 | 4 | ✅ | `phase-4-embeddings-retrieval` | Embeddings & retrieval |
 | 5 | ✅ | `phase-5-owner-qa` | Owner Q&A (RAG + citations) |
-| 6 | — | Simple web UI |
-| 7 | — | Audit trail & debug tooling |
+| 6 | ✅ | `phase-6-web-ui` | Simple web UI |
+| 7 | — | `phase-7-observability` | Audit trail & debug tooling |

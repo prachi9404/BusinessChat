@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BusinessChat</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <div>
+        <h1>BusinessChat</h1>
+        <p class="subtitle">Multi-tenant business updates assistant</p>
+      </div>
+      <div class="company-picker">
+        <label for="company-select">Company</label>
+        <select id="company-select"></select>
+      </div>
+    </div>
+    <div id="company-banner" class="company-banner hidden"></div>
+  </header>
+
+  <main class="layout">
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Team updates</h2>
+        <p>Post daily operational messages</p>
+      </div>
+
+      <form id="message-form" class="composer">
+        <label for="user-select">Post as</label>
+        <select id="user-select" required></select>
+        <textarea
+          id="message-input"
+          rows="3"
+          placeholder="e.g. Factory line 2 down for 2 hours"
+          required
+        ></textarea>
+        <button type="submit">Send update</button>
+      </form>
+
+      <div id="messages-list" class="feed"></div>
+    </section>
+
+    <section class="panel panel-accent">
+      <div class="panel-header">
+        <h2>Owner Q&amp;A</h2>
+        <p>Ask natural-language questions, get sourced answers</p>
+      </div>
+
+      <form id="ask-form" class="composer">
+        <textarea
+          id="question-input"
+          rows="3"
+          placeholder="e.g. How was line 2 this week?"
+          required
+        ></textarea>
+        <button type="submit">Ask</button>
+      </form>
+
+      <div id="answer-box" class="answer-box hidden">
+        <h3>Answer</h3>
+        <p id="answer-text"></p>
+        <div class="meta">
+          <span id="answer-model"></span>
+          <span id="answer-log-id"></span>
+        </div>
+      </div>
+
+      <div id="sources-box" class="sources-box hidden">
+        <h3>Sources</h3>
+        <div id="sources-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+  <script src="/static/app.js"></script>
+</body>
+</html>
