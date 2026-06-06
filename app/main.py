@@ -2,7 +2,7 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
+from starlette.staticfiles import StaticFiles
 
 from app.api.ask import router as ask_router
 from app.api.companies import router as companies_router
@@ -26,7 +26,20 @@ app.include_router(search_router)
 app.include_router(ask_router)
 
 STATIC_DIR = Path(__file__).parent / "static"
-app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+NO_CACHE = "no-cache, no-store, must-revalidate"
+
+
+class NoCacheStaticFiles(StaticFiles):
+    async def get_response(self, path: str, scope):
+        response = await super().get_response(path, scope)
+        response.headers["Cache-Control"] = NO_CACHE
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+        return response
+
+
+app.mount("/static", NoCacheStaticFiles(directory=STATIC_DIR), name="static")
 
 
 @app.get("/")
@@ -42,4 +55,11 @@ async def root() -> dict:
 
 @app.get("/app")
 async def web_app() -> FileResponse:
-    return FileResponse(STATIC_DIR / "index.html")
+    return FileResponse(
+        STATIC_DIR / "index.html",
+        headers={
+            "Cache-Control": NO_CACHE,
+            "Pragma": "no-cache",
+            "Expires": "0",
+        },
+    )
