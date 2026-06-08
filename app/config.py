@@ -32,6 +32,13 @@ class Settings(BaseSettings):
     embedding_dimensions: int = 1536
     chat_model: str = "gpt-4o-mini"
 
+    jwt_secret_key: str = "change-me-in-production"
+    jwt_algorithm: str = "HS256"
+    jwt_expire_minutes: int = 480
+
+    default_admin_password: str = "Admin123!"
+    default_user_password: str = "User123!"
+
     @property
     def database_url(self) -> str:
         return (

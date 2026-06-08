@@ -7,8 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from app.db.session import get_db
-from app.dependencies.tenant import get_current_company
-from app.dependencies.user import get_current_user
+from app.dependencies.auth import get_current_company, get_current_user
 from app.models.company import Company
 from app.models.message import Message
 from app.models.user import User

@@ -6,8 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_settings
 from app.db.session import get_db
-from app.dependencies.tenant import get_current_company
+from app.dependencies.auth import get_current_company, require_admin
 from app.models.company import Company
+from app.models.user import User
 from app.models.qa_log import QALog
 from app.schemas.ask import (
     AskRequest,
@@ -69,6 +70,7 @@ async def ask_owner_question(
     payload: AskRequest,
     company: Company = Depends(get_current_company),
     db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_admin),
 ) -> AskResponse:
     question = payload.question.strip()
     matches = await search_messages(
@@ -109,6 +111,7 @@ async def ask_owner_question(
 async def list_qa_logs(
     company: Company = Depends(get_current_company),
     db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_admin),
     limit: int = Query(default=20, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
 ) -> list[QALogSummary]:
@@ -139,6 +142,7 @@ async def get_qa_log(
     qa_log_id: uuid.UUID,
     company: Company = Depends(get_current_company),
     db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_admin),
 ) -> QALogRead:
     result = await db.execute(
         select(QALog).where(QALog.id == qa_log_id, QALog.company_id == company.id)
@@ -155,6 +159,7 @@ async def debug_qa_log(
     qa_log_id: uuid.UUID,
     company: Company = Depends(get_current_company),
     db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_admin),
 ) -> QALogDebug:
     result = await db.execute(
         select(QALog).where(QALog.id == qa_log_id, QALog.company_id == company.id)

@@ -2,8 +2,9 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
-from app.dependencies.tenant import get_current_company
+from app.dependencies.auth import get_current_company, require_admin
 from app.models.company import Company
+from app.models.user import User
 from app.schemas.search import SearchRequest, SearchResponse, SearchResult
 from app.services.retrieval import search_messages
 
@@ -15,6 +16,7 @@ async def semantic_search(
     payload: SearchRequest,
     company: Company = Depends(get_current_company),
     db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_admin),
 ) -> SearchResponse:
     matches = await search_messages(
         db=db,

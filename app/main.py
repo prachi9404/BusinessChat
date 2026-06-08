@@ -5,7 +5,9 @@ from fastapi.responses import FileResponse
 from starlette.staticfiles import StaticFiles
 
 from app.api.ask import router as ask_router
+from app.api.auth import router as auth_router
 from app.api.companies import router as companies_router
+from app.api.users import router as users_router
 from app.api.health import router as health_router
 from app.api.messages import router as messages_router
 from app.api.search import router as search_router
@@ -20,7 +22,9 @@ app = FastAPI(
 )
 
 app.include_router(health_router)
+app.include_router(auth_router)
 app.include_router(companies_router)
+app.include_router(users_router)
 app.include_router(messages_router)
 app.include_router(search_router)
 app.include_router(ask_router)
@@ -46,11 +50,24 @@ app.mount("/static", NoCacheStaticFiles(directory=STATIC_DIR), name="static")
 async def root() -> dict:
     return {
         "message": "BusinessChat API",
+        "login": "/login",
         "ui": "/app",
         "docs": "/docs",
         "health": "/health",
         "ask": "/ask",
     }
+
+
+@app.get("/login")
+async def login_page() -> FileResponse:
+    return FileResponse(
+        STATIC_DIR / "login.html",
+        headers={
+            "Cache-Control": NO_CACHE,
+            "Pragma": "no-cache",
+            "Expires": "0",
+        },
+    )
 
 
 @app.get("/app")

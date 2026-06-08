@@ -4,93 +4,222 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
   <title>BusinessChat</title>
-  <link rel="stylesheet" href="/static/styles.css?v=4" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/styles.css?v=19" />
 </head>
 <body>
   <header class="header">
     <div class="header-inner">
-      <div>
-        <h1>BusinessChat</h1>
-        <p class="subtitle">Multi-tenant business updates assistant</p>
+      <div class="brand-block">
+        <p class="brand-label">BusinessChat</p>
+        <h1 id="company-title" class="company-title">Loading…</h1>
+        <p id="company-meta" class="company-meta"></p>
       </div>
-      <div class="company-picker">
-        <label for="company-select">Company</label>
-        <select id="company-select"></select>
+      <div class="session-box">
+        <div id="session-info" class="session-info"></div>
+        <button id="logout-btn" type="button" class="button-secondary" aria-label="Sign out">
+          <span class="logout-label">Sign out</span>
+        </button>
       </div>
     </div>
-    <div id="company-banner" class="company-banner hidden"></div>
   </header>
 
-  <main class="layout">
-    <section class="panel">
-      <div class="panel-header">
-        <h2>Team updates</h2>
-        <p>Post daily operational messages</p>
-      </div>
+  <nav id="app-nav" class="app-nav hidden" aria-label="App sections">
+    <button type="button" class="nav-link active" data-view="ask">Questions</button>
+    <button type="button" class="nav-link" data-view="updates">Updates</button>
+    <button type="button" class="nav-link" data-view="team">Team</button>
+  </nav>
 
-      <form id="message-form" class="composer">
-        <label for="user-select">Post as</label>
-        <select id="user-select" required></select>
-        <textarea
-          id="message-input"
-          rows="3"
-          placeholder="e.g. Factory line 2 down for 2 hours"
-          required
-        ></textarea>
-        <button type="submit">Send update</button>
-      </form>
+  <main class="app-main">
+    <section id="view-updates" class="view hidden">
+      <header class="view-header">
+        <h2>Updates</h2>
+        <p id="posting-as" class="view-lead">Share what happened today — outages, shipments, sales, and more.</p>
+      </header>
 
-      <div id="messages-list" class="feed"></div>
-    </section>
+      <div class="updates-shell">
+        <div class="panel updates-feed-panel">
+          <div id="messages-list" class="feed"></div>
+        </div>
 
-    <section class="panel panel-accent">
-      <div class="panel-header">
-        <h2>Owner Q&amp;A</h2>
-        <p>Ask natural-language questions, get sourced answers</p>
-      </div>
-
-      <form id="ask-form" class="composer">
-        <textarea
-          id="question-input"
-          rows="3"
-          placeholder="e.g. How was line 2 this week?"
-          required
-        ></textarea>
-        <button type="submit">Ask</button>
-      </form>
-
-      <div id="answer-box" class="answer-box hidden">
-        <h3>Answer</h3>
-        <p id="answer-text"></p>
-        <div class="meta">
-          <span id="answer-model"></span>
-          <span id="answer-log-id"></span>
+        <div class="updates-composer-dock">
+          <form id="message-form" class="composer">
+            <textarea
+              id="message-input"
+              rows="2"
+              placeholder="What happened today? e.g. Line 2 was down for 2 hours."
+              required
+            ></textarea>
+            <button type="submit" data-default-label="Share update">Share update</button>
+            <p id="message-feedback" class="inline-feedback hidden" role="status"></p>
+          </form>
         </div>
       </div>
+    </section>
 
-      <div id="sources-box" class="sources-box hidden">
-        <h3>Sources</h3>
-        <div id="sources-list"></div>
+    <section id="view-ask" class="view view-active">
+      <div id="ask-stage" class="ask-stage">
+        <div id="ask-empty" class="ask-empty">
+          <p class="ask-greeting">Ask a question about your team's updates</p>
+          <p class="ask-greeting-sub">Answers are drawn from what your team has posted.</p>
+        </div>
+
+        <div id="ask-conversation" class="ask-conversation hidden">
+          <div id="ask-question-display" class="chat-bubble chat-user"></div>
+          <div class="chat-bubble chat-assistant">
+            <div id="ask-loading" class="ask-loading hidden" role="status" aria-live="polite">
+              <span class="spinner" aria-hidden="true"></span>
+              <span id="ask-loading-text">Looking through team updates…</span>
+            </div>
+            <p id="answer-text"></p>
+            <details id="sources-details" class="ask-collapsible hidden">
+              <summary id="sources-summary">Related updates</summary>
+              <div id="sources-list" class="sources-list-inner"></div>
+            </details>
+          </div>
+        </div>
+
+        <div class="ask-bottom-dock">
+          <div class="ask-input-shell">
+            <form id="ask-form" class="ask-input-bar">
+              <textarea
+                id="question-input"
+                rows="1"
+                placeholder="e.g. How did line 2 perform this week?"
+                required
+              ></textarea>
+              <button type="submit" class="ask-send-btn" aria-label="Ask question" data-default-label="↑">↑</button>
+            </form>
+          </div>
+
+          <div class="ask-toolbar">
+            <details id="history-drawer" class="ask-drawer">
+              <summary>Previous questions</summary>
+              <div id="qa-history-list" class="history-list drawer-list"></div>
+            </details>
+            <details id="qa-debug-details" class="ask-drawer">
+              <summary>Technical details</summary>
+              <div id="qa-debug-box" class="debug-box">
+                <p id="qa-debug-question" class="debug-question"></p>
+                <pre id="qa-debug-prompt" class="debug-pre"></pre>
+                <div id="qa-debug-retrieval"></div>
+              </div>
+            </details>
+          </div>
+        </div>
       </div>
+    </section>
 
-      <div class="history-section">
-        <h3>Q&amp;A history &amp; debug</h3>
-        <p class="history-hint">Click a past question to inspect the debug trace</p>
-        <div id="qa-history-list" class="history-list"></div>
-        <div id="qa-debug-box" class="debug-box hidden">
-          <h4>Debug trace</h4>
-          <p id="qa-debug-question" class="debug-question"></p>
-          <pre id="qa-debug-prompt" class="debug-pre"></pre>
-          <div id="qa-debug-retrieval"></div>
+    <section id="view-team" class="view hidden">
+      <div class="team-page">
+        <header class="view-header">
+          <h2>Team</h2>
+          <p class="view-lead">Add people to your company so they can post updates and sign in with their email.</p>
+        </header>
+
+        <div class="team-layout">
+          <div class="panel team-invite-card">
+            <div class="team-card-header">
+              <h3>Invite a member</h3>
+              <p>They'll sign in with the email and password you set here.</p>
+            </div>
+
+            <form id="create-user-form" class="team-invite-form">
+              <div class="field-group">
+                <label for="new-user-name">Full name</label>
+                <input id="new-user-name" type="text" placeholder="Amit Patel" required />
+              </div>
+              <div class="field-group">
+                <label for="new-user-email">Work email</label>
+                <input id="new-user-email" type="email" placeholder="amit@company.com" required />
+              </div>
+              <div class="field-group">
+                <label for="new-user-password">Temporary password</label>
+                <input id="new-user-password" type="password" minlength="6" placeholder="Min. 6 characters" required />
+                <p class="field-hint">Share this with them after you add them — they'll need it to sign in.</p>
+              </div>
+              <button type="submit" class="team-invite-btn" data-default-label="Add person">Add person</button>
+              <p id="invite-feedback" class="inline-feedback hidden" role="status"></p>
+            </form>
+
+            <div id="login-snippet" class="login-snippet hidden">
+              <div class="login-snippet-header">
+                <strong>Sign-in details to share</strong>
+                <button type="button" id="copy-login-snippet" class="btn-ghost btn-sm">Copy</button>
+              </div>
+              <pre id="login-snippet-text" class="login-snippet-text"></pre>
+            </div>
+          </div>
+
+          <div class="panel team-roster-card">
+            <div class="team-roster-header">
+              <div>
+                <h3>People</h3>
+                <p id="team-count" class="team-count">Loading…</p>
+              </div>
+            </div>
+            <div id="managed-users-list" class="team-roster"></div>
+          </div>
         </div>
       </div>
     </section>
   </main>
 
+  <dialog id="reset-password-dialog" class="team-dialog">
+    <form id="reset-password-form" class="team-dialog-form">
+      <div class="team-dialog-header">
+        <h3 id="reset-password-title">New password</h3>
+        <button type="button" id="reset-dialog-close" class="btn-ghost btn-sm" aria-label="Close">✕</button>
+      </div>
+      <input type="hidden" id="reset-user-id" />
+      <p id="reset-password-lead" class="dialog-lead">
+        For security, we can't show the current password. Choose a new one to share updated sign-in details.
+      </p>
+      <div class="field-group">
+        <label for="reset-password-value">New temporary password</label>
+        <div class="password-field-row">
+          <input id="reset-password-value" type="text" minlength="6" required />
+          <button type="button" id="reset-password-generate" class="button-secondary">Generate</button>
+        </div>
+      </div>
+      <div class="team-dialog-actions">
+        <button type="button" id="reset-dialog-cancel" class="button-secondary">Cancel</button>
+        <button type="submit" class="team-invite-btn">Save &amp; copy details</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="edit-member-dialog" class="team-dialog">
+    <form id="edit-user-form" method="dialog" class="team-dialog-form">
+      <div class="team-dialog-header">
+        <h3>Edit person</h3>
+        <button type="button" id="edit-dialog-close" class="btn-ghost btn-sm" aria-label="Close">✕</button>
+      </div>
+      <input type="hidden" id="edit-user-id" />
+      <div class="field-group">
+        <label for="edit-user-name">Full name</label>
+        <input id="edit-user-name" type="text" required />
+      </div>
+      <div class="field-group">
+        <label for="edit-user-email">Work email</label>
+        <input id="edit-user-email" type="email" required />
+      </div>
+      <div class="field-group">
+        <label for="edit-user-password">New password</label>
+        <input id="edit-user-password" type="password" minlength="6" placeholder="Leave blank to keep current" />
+        <p class="field-hint">Leave blank to keep their current password.</p>
+      </div>
+      <div class="team-dialog-actions">
+        <button type="button" id="edit-dialog-cancel" class="button-secondary">Cancel</button>
+        <button type="submit" class="team-invite-btn">Save changes</button>
+      </div>
+    </form>
+  </dialog>
+
   <div id="toast" class="toast hidden"></div>
-  <script src="/static/app.js?v=4"></script>
+  <script src="/static/app.js?v=17"></script>
 </body>
 </html>

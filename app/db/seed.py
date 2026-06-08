@@ -3,10 +3,14 @@ from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import select
 
+from app.config import get_settings
 from app.db.session import SessionLocal
 from app.models.company import Company
 from app.models.message import Message
 from app.models.user import User, UserRole
+from app.services.auth import hash_password
+
+settings = get_settings()
 
 SEED_COMPANIES = [
     {
@@ -67,7 +71,21 @@ async def _seed_companies(session) -> dict[str, Company]:
             await session.flush()
 
             for user_data in entry["users"]:
-                session.add(User(company_id=company.id, **user_data))
+                role = user_data["role"]
+                password = (
+                    settings.default_admin_password
+                    if role == UserRole.OWNER
+                    else settings.default_user_password
+                )
+                session.add(
+                    User(
+                        company_id=company.id,
+                        name=user_data["name"],
+                        email=user_data["email"],
+                        role=role,
+                        password_hash=hash_password(password),
+                    )
+                )
 
         companies_by_slug[entry["slug"]] = company
 
@@ -102,15 +120,29 @@ async def _seed_messages(session, companies_by_slug: dict[str, Company]) -> int:
     return created
 
 
+async def _seed_passwords(session) -> int:
+    result = await session.execute(select(User).where(User.password_hash.is_(None)))
+    users = list(result.scalars().all())
+    for user in users:
+        password = (
+            settings.default_admin_password if user.is_admin else settings.default_user_password
+        )
+        user.password_hash = hash_password(password)
+    return len(users)
+
+
 async def seed() -> None:
     async with SessionLocal() as session:
         companies_by_slug = await _seed_companies(session)
         message_count = await _seed_messages(session, companies_by_slug)
+        password_count = await _seed_passwords(session)
         await session.commit()
 
         if message_count:
             print(f"Seeded {message_count} sample messages")
-        else:
+        if password_count:
+            print(f"Set default passwords for {password_count} users")
+        if not message_count and not password_count:
             print("Seed complete (companies/users/messages already present or messages skipped)")
 
 

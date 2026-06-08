@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign in — BusinessChat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/styles.css?v=19" />
+</head>
+<body class="login-body">
+  <main class="login-card">
+    <h1>BusinessChat</h1>
+    <p class="subtitle">Capture daily updates. Get answers when you need them.</p>
+
+    <div class="auth-tabs">
+      <button type="button" id="tab-signin" class="auth-tab active">Sign in</button>
+      <button type="button" id="tab-register" class="auth-tab">Signup</button>
+    </div>
+
+    <form id="login-form" class="composer">
+      <div class="field-group">
+        <label for="email-input">Email</label>
+        <input id="email-input" type="email" placeholder="you@company.com" autocomplete="email" required />
+      </div>
+
+      <div class="field-group">
+        <label for="password-input">Password</label>
+        <input id="password-input" type="password" placeholder="Enter your password" autocomplete="current-password" required />
+      </div>
+
+      <button type="submit" data-default-label="Sign in">Sign in</button>
+      <p id="login-feedback" class="inline-feedback hidden" role="status"></p>
+    </form>
+
+    <div id="register-wizard" class="register-wizard hidden">
+      <div class="wizard-progress" aria-label="Signup progress">
+        <div class="wizard-step active" data-step="1">
+          <span class="wizard-step-num">1</span>
+          <span class="wizard-step-label">Company</span>
+        </div>
+        <div class="wizard-step-line" aria-hidden="true"></div>
+        <div class="wizard-step" data-step="2">
+          <span class="wizard-step-num">2</span>
+          <span class="wizard-step-label">Your account</span>
+        </div>
+      </div>
+
+      <form id="register-form">
+        <input type="hidden" id="register-company-slug" />
+
+        <div id="wizard-step-1" class="wizard-panel">
+          <h2 class="wizard-title">Set up your company</h2>
+          <p class="wizard-lead">Create a workspace where your team can post daily updates.</p>
+
+          <div class="field-group">
+            <label for="register-company-name">Company name</label>
+            <input id="register-company-name" type="text" placeholder="Acme Industries" required />
+          </div>
+
+          <div class="field-group">
+            <label for="register-industry">Industry</label>
+            <input id="register-industry" type="text" placeholder="e.g. manufacturing, retail, logistics" required />
+          </div>
+
+          <div class="field-group">
+            <label for="register-description">About your company <span class="label-optional">(optional)</span></label>
+            <textarea id="register-description" rows="2" placeholder="What does your team work on?"></textarea>
+          </div>
+
+          <p id="slug-preview" class="slug-preview hidden">
+            Workspace address: <code id="slug-preview-value"></code>
+          </p>
+
+          <button type="button" id="wizard-next" class="wizard-primary-btn">Continue</button>
+        </div>
+
+        <div id="wizard-step-2" class="wizard-panel hidden">
+          <h2 class="wizard-title">Create your admin account</h2>
+          <p class="wizard-lead">You'll manage the team and ask questions about updates.</p>
+
+          <div class="company-recap" id="company-recap"></div>
+
+          <div class="field-group">
+            <label for="register-admin-name">Your name</label>
+            <input id="register-admin-name" type="text" placeholder="Full name" autocomplete="name" required />
+          </div>
+
+          <div class="field-group">
+            <label for="register-admin-email">Work email</label>
+            <input id="register-admin-email" type="email" placeholder="you@company.com" autocomplete="email" required />
+          </div>
+
+          <div class="field-group">
+            <label for="register-admin-password">Password</label>
+            <input id="register-admin-password" type="password" minlength="6" placeholder="At least 6 characters" autocomplete="new-password" required />
+            <p class="field-hint">You'll use this to sign in and invite team members.</p>
+          </div>
+
+          <div id="register-alert" class="register-alert hidden" role="alert"></div>
+
+          <div class="wizard-actions">
+            <button type="button" id="wizard-back" class="button-secondary">Back</button>
+            <button type="submit" class="wizard-primary-btn" data-default-label="Create company">Create company</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <details class="login-demo">
+      <summary>Try a demo account</summary>
+      <p class="login-demo-lead">Pick a role to fill in the sign-in form.</p>
+
+      <div class="demo-grid">
+        <article class="demo-card">
+          <div class="demo-card-top">
+            <strong>Apex Manufacturing</strong>
+            <span class="role-badge role-admin">Admin</span>
+          </div>
+          <p class="demo-email">ravi@apex.com</p>
+          <button type="button" class="demo-fill-btn" data-email="ravi@apex.com" data-password="Admin123!">
+            Use admin account
+          </button>
+        </article>
+
+        <article class="demo-card">
+          <div class="demo-card-top">
+            <strong>Horizon Trading</strong>
+            <span class="role-badge role-admin">Admin</span>
+          </div>
+          <p class="demo-email">priya@horizon.com</p>
+          <button type="button" class="demo-fill-btn" data-email="priya@horizon.com" data-password="Admin123!">
+            Use admin account
+          </button>
+        </article>
+
+        <article class="demo-card">
+          <div class="demo-card-top">
+            <strong>Apex Manufacturing</strong>
+            <span class="role-badge role-user">Member</span>
+          </div>
+          <p class="demo-email">amit@apex.com</p>
+          <button type="button" class="demo-fill-btn" data-email="amit@apex.com" data-password="User123!">
+            Use member account
+          </button>
+        </article>
+
+        <article class="demo-card">
+          <div class="demo-card-top">
+            <strong>Horizon Trading</strong>
+            <span class="role-badge role-user">Member</span>
+          </div>
+          <p class="demo-email">karan@horizon.com</p>
+          <button type="button" class="demo-fill-btn" data-email="karan@horizon.com" data-password="User123!">
+            Use member account
+          </button>
+        </article>
+      </div>
+    </details>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+  <script src="/static/login.js?v=7"></script>
+</body>
+</html>
