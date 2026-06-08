@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from fastapi import FastAPI
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from starlette.staticfiles import StaticFiles
 
 from app.api.ask import router as ask_router
@@ -47,15 +47,8 @@ app.mount("/static", NoCacheStaticFiles(directory=STATIC_DIR), name="static")
 
 
 @app.get("/")
-async def root() -> dict:
-    return {
-        "message": "BusinessChat API",
-        "login": "/login",
-        "ui": "/app",
-        "docs": "/docs",
-        "health": "/health",
-        "ask": "/ask",
-    }
+async def root() -> RedirectResponse:
+    return RedirectResponse(url="/login", status_code=302)
 
 
 @app.get("/login")
