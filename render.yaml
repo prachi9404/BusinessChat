@@ -1,0 +1,44 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+# Deploy: Dashboard → New → Blueprint → connect this repo (UI_Final branch)
+
+databases:
+  - name: businesschat-db
+    plan: basic-256mb
+    databaseName: businesschat
+    user: businesschat
+
+services:
+  - type: redis
+    name: businesschat-redis
+    plan: free
+    maxmemoryPolicy: allkeys-lru
+    ipAllowList: []
+
+  - type: web
+    name: businesschat
+    runtime: docker
+    plan: starter
+    branch: UI_Final
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_NAME
+        value: BusinessChat
+      - key: LOG_LEVEL
+        value: info
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: businesschat-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: businesschat-redis
+          property: connectionString
