@@ -1,5 +1,5 @@
 # Render Blueprint — https://render.com/docs/blueprint-spec
-# Deploy: Dashboard → New → Blueprint → connect this repo (UI_Final branch)
+# Deploy: Dashboard → New → Blueprint → connect this repo (main branch)
 
 databases:
   - name: businesschat-db
@@ -18,7 +18,7 @@ services:
     name: businesschat
     runtime: docker
     plan: starter
-    branch: UI_Final
+    branch: main
     dockerfilePath: ./Dockerfile
     dockerContext: .
     healthCheckPath: /health

@@ -7,8 +7,13 @@
   <title>BusinessChat</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" href="/static/styles.css?v=20" as="style" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/static/styles.css?v=19" />
+  <link rel="stylesheet" href="/static/styles.css?v=20" />
+  <style>
+    body { margin: 0; font-family: Inter, system-ui, sans-serif; background: #f6f7f9; color: #111827; }
+    .hidden { display: none !important; }
+  </style>
 </head>
 <body>
   <header class="header">
@@ -220,6 +225,6 @@
   </dialog>
 
   <div id="toast" class="toast hidden"></div>
-  <script src="/static/app.js?v=17"></script>
+  <script src="/static/app.js?v=20"></script>
 </body>
 </html>

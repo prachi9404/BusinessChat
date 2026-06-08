@@ -51,25 +51,35 @@ async def root() -> RedirectResponse:
     return RedirectResponse(url="/login", status_code=302)
 
 
-@app.get("/login")
-async def login_page() -> FileResponse:
+def _html_response(filename: str) -> FileResponse:
     return FileResponse(
-        STATIC_DIR / "login.html",
+        STATIC_DIR / filename,
+        media_type="text/html",
         headers={
             "Cache-Control": NO_CACHE,
             "Pragma": "no-cache",
             "Expires": "0",
         },
     )
+
+
+@app.get("/api")
+async def api_info() -> dict:
+    return {
+        "message": "BusinessChat API",
+        "login": "/login",
+        "ui": "/app",
+        "docs": "/docs",
+        "health": "/health",
+        "ask": "/ask",
+    }
+
+
+@app.get("/login")
+async def login_page() -> FileResponse:
+    return _html_response("login.html")
 
 
 @app.get("/app")
 async def web_app() -> FileResponse:
-    return FileResponse(
-        STATIC_DIR / "index.html",
-        headers={
-            "Cache-Control": NO_CACHE,
-            "Pragma": "no-cache",
-            "Expires": "0",
-        },
-    )
+    return _html_response("index.html")
